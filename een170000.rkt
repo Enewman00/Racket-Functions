@@ -1,21 +1,25 @@
 #lang racket
 
 
+(provide (all-defined-out))
+
+
 ;;Define your own Racket function that takes an integer as an argument and returns a function that
 ;;indicates whether its integer argument is evenly divisible by the first.
 ;;Input: An integer.
 ;;Output: A function. 
 (define divisible-by-x?
   (λ (x)
-    ;;return a function
-    (λ (n) (integer? (/ n x)))))
+    (λ (n) (integer? (/ n x)))))    ;;return a function - returns the lambda in this line
+
 
 ;;Define a function that takes a function as an argument and passes the number 9 to that function. The
 ;;function argument must be able to accept a single integer as its argument.
 ;;Input: A named function which takes a single number as an argument.
 ;;Output: The value returned by applying the named function to the number 9.
 (define function-9
-  (λ (func) (func 9)))
+  (λ (func) (func 9)))  ;;applies function to 9
+
 
 ;;Define your own Racket function that duplicates the the functionality of map from the standard library.
 ;;Input: The input to my-map is a function that takes a function and a homogeneous list of elements of
@@ -25,12 +29,11 @@
 (define my-map
   (λ (func lst)
     (my-map-helper func lst null)))
-(define my-map-helper
+(define my-map-helper  ;;helper function to build accumulator
   (λ (func lst acc)
-    (if (null? lst)
-        acc
-        (my-map-helper func (cdr lst)
-            (append acc (list (func (car lst))))))))
+    (if (null? lst)    ;;if list is null
+        acc            ;;return accumulator
+        (my-map-helper func (cdr lst) (append acc (list (func (car lst)))))))) ;;else append new item (with func applied) to acc
 
 
 
@@ -49,11 +52,11 @@
     (pair-up-helper list1 list2 null)))
 (define pair-up-helper
   (λ (list1 list2 acc)
-    (if (null? list1)
-        acc
-        (if (null? list2)
-            acc
-            (pair-up-helper (cdr list1) (cdr list2) (append acc (list (append (list (car list1)) (list (car list2))))))))))
+    (if (null? list1) ;;if list 1 is null
+        acc           ;;return acc
+        (if (null? list2) ;;or if list 2 is null
+            acc           ;;return acc
+            (pair-up-helper (cdr list1) (cdr list2) (append acc (list (append (list (car list1)) (list (car list2)))))))))) ;;recurse - create sublist, append to acc
             
 
 
@@ -70,8 +73,8 @@
     (classify-helper func lst null null)))
 (define classify-helper
   (λ (func lst sub1 sub2)
-    (if (null? lst)
-        (append (list sub1) (list sub2))
+    (if (null? lst)                      ;;base case
+        (append (list sub1) (list sub2)) ;;return sublists appended
         (if (func (car lst))  ;;if func applied to item is true
             (classify-helper func (cdr lst) (append sub1 (list (car lst))) sub2) ;;then recurse with appended to sub1
             (classify-helper func (cdr lst) sub1 (append sub2 (list (car lst)))))))) ;;then recurse with appended to sub2
@@ -87,8 +90,8 @@
 ;;Output: A boolean value that indicates whether the input item is a member of the input list.
 (define is-member?
   (λ (item lst)
-    (if (null? lst)
-        #f
+    (if (null? lst)  ;;base case
+        #f           ;;return false
         (if (equal? item (car lst))  ;;if item is equal to head of the list given
             #t                     ;;return true
             (is-member? item (cdr lst))))))
@@ -103,10 +106,10 @@
 ;;comparison function.
 (define my-sorted?
   (λ (func lst)
-    (if (equal? 1 (length lst))
+    (if (equal? 1 (length lst)) ;;base case
         #t
-        (if (func (car lst) (cadr lst))
-            (my-sorted? func (cdr lst))
+        (if (func (car lst) (cadr lst)) ;;if the func applied to the 1st and second item is true
+            (my-sorted? func (cdr lst)) ;;recurse
             #f))))
 
 
@@ -123,9 +126,9 @@
     (my-flatten-helper lst null)))
 (define my-flatten-helper
   (λ (lst acc)
-    (if (null? lst)
-        acc
-        (if (list? (car lst))             ;;if head is a list,_____, else append to acc
+    (if (null? lst)  ;;base case
+        acc          ;;return acc
+        (if (list? (car lst))             ;;if head is a list, recurse w/o appending, else append to acc
             (my-flatten-helper (append (car lst) (cdr lst)) acc)
             (my-flatten-helper (cdr lst) (append acc (list (car lst))))))))
 
@@ -145,11 +148,11 @@
     (upper-threshold-helper lst num null)))
 (define upper-threshold-helper
   (λ (lst num acc)
-    (if (null? lst)
-        acc
-        (if (< (car lst) num)
-            (upper-threshold-helper (cdr lst) num (append acc (list (car lst))))
-            (upper-threshold-helper (cdr lst) num acc)))))
+    (if (null? lst) ;;base case
+        acc         ;;return accumulator
+        (if (< (car lst) num) ;;if above threshold
+            (upper-threshold-helper (cdr lst) num (append acc (list (car lst)))) ;;recurse with appended to acc
+            (upper-threshold-helper (cdr lst) num acc))))) ;;else recurse - go to next item
 
 
 
@@ -166,9 +169,9 @@
 (define my-list-ref
   (λ (lst num)
     (cond
-      [(null? lst) (error "ERROR: Index out of bounds")]
-      [(equal? num 0) (car lst)]
-      [else (my-list-ref (cdr lst) (- num 1))])))
+      [(null? lst) (error "ERROR: Index out of bounds")] ;;if list is null, we got to end. Throw error
+      [(equal? num 0) (car lst)] ;;if at item, return item
+      [else (my-list-ref (cdr lst) (- num 1))]))) ;;else, go to next item subtract 1 from num
 
 
 
@@ -186,9 +189,9 @@
     (deep-reverse-helper lst null)))
 (define deep-reverse-helper
   (λ (lst acc)
-    (if (null? lst)
-        acc
-        (if (list? (car lst))
-            (deep-reverse-helper (cdr lst) (append (list (deep-reverse-helper (car lst) null)) acc))
-            (deep-reverse-helper (cdr lst) (append (list (car lst)) acc))))))
+    (if (null? lst) ;;base case
+        acc         ;;return acc
+        (if (list? (car lst)) ;;if head is a list
+            (deep-reverse-helper (cdr lst) (append (list (deep-reverse-helper (car lst) null)) acc)) ;;recurse with nested recursion on item
+            (deep-reverse-helper (cdr lst) (append (list (car lst)) acc)))))) ;;else - add to front of list
          
